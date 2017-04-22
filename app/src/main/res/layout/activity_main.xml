@@ -5,12 +5,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.lcw.view.BezierQuadView
+    <!--<com.lcw.view.BezierQuadView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content" />-->
+
+    <com.lcw.view.BezierCubicView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-
-    <!--<com.lcw.view.BezierCubicView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content" />-->
 
 </LinearLayout>

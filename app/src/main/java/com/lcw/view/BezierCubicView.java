@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -39,6 +40,9 @@ public class BezierCubicView extends View {
     //辅助线画笔,写字画笔
     private Paint mLinePaint;
     private Paint mTextPaint;
+
+    //标志是否按下
+    private boolean mFlag;
 
 
     public BezierCubicView(Context context) {
@@ -102,9 +106,10 @@ public class BezierCubicView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        mPath.reset();
         //赛贝尔曲线
         mPath.moveTo(mStartXPoint, mStartYPoint);
-        mPath.cubicTo(mConOneXPoint, mConOneYPoint,mConTwoXPoint,mConTwoYPoint,mEndXPoint, mEndYPoint);
+        mPath.cubicTo(mConOneXPoint, mConOneYPoint, mConTwoXPoint, mConTwoYPoint, mEndXPoint, mEndYPoint);
         canvas.drawPath(mPath, mPaint);
 
         //辅助线
@@ -123,5 +128,27 @@ public class BezierCubicView extends View {
         canvas.drawText("控制点2", mConTwoXPoint, mConTwoYPoint - 30, mTextPaint);
 
 
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_POINTER_DOWN:
+                mFlag = true;
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                mFlag = false;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                mConOneXPoint = (int) event.getX(0);
+                mConOneYPoint = (int) event.getY(0);
+                if (mFlag) {
+                    mConTwoXPoint = (int) event.getY(1);
+                    mConTwoYPoint = (int) event.getY(1);
+                }
+                invalidate();
+                break;
+        }
+        return true;
     }
 }
