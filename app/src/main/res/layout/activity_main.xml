@@ -13,8 +13,12 @@
     <!--android:layout_width="wrap_content"-->
     <!--android:layout_height="wrap_content" />-->
 
-    <com.lcw.view.BezierWaveView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <!--<com.lcw.view.BezierWaveView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content" />-->
+    <!--<com.lcw.view.BezierMoveView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--/>-->
 
 </LinearLayout>

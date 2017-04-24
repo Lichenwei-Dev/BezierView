@@ -107,7 +107,7 @@ public class BezierCubicView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         mPath.reset();
-        //赛贝尔曲线
+        //贝塞尔曲线
         mPath.moveTo(mStartXPoint, mStartYPoint);
         mPath.cubicTo(mConOneXPoint, mConOneYPoint, mConTwoXPoint, mConTwoYPoint, mEndXPoint, mEndYPoint);
         canvas.drawPath(mPath, mPaint);

@@ -1,18 +1,25 @@
 package com.lcw.view;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.lcw.view.shoppingcart.GoodsView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button bt_shoppingcart_goods;
-    private Button bt_shoppingcart_cart;
+    private ImageView iv_shop_add;
+    private ImageView iv_shop_reduce;
+    private ImageView iv_shop_cart;
     private ViewGroup mViewGroup;
+
+    private int mShoppingCartWidth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,25 +29,35 @@ public class MainActivity extends AppCompatActivity {
         getData();
 
 
+        ViewTreeObserver viewTreeObserver=iv_shop_cart.getViewTreeObserver();
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                iv_shop_cart.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                mShoppingCartWidth=iv_shop_cart.getMeasuredWidth();
+            }
+        });
+
     }
 
     private void getData() {
-        bt_shoppingcart_goods.setOnClickListener(new View.OnClickListener() {
+        iv_shop_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 //获取商品坐标
                 int[] goodsPoint = new int[2];
-                bt_shoppingcart_goods.getLocationInWindow(goodsPoint);
+                iv_shop_add.getLocationInWindow(goodsPoint);
 
                 //获取购物车坐标
                 int[] shoppingCartPoint = new int[2];
-                bt_shoppingcart_cart.getLocationInWindow(shoppingCartPoint);
+                iv_shop_cart.getLocationInWindow(shoppingCartPoint);
 
 
                 //生成商品View
                 GoodsView goodsView = new GoodsView(MainActivity.this);
                 goodsView.setCircleStartPoint(goodsPoint[0], goodsPoint[1]);
-                goodsView.setCircleEndPoint(shoppingCartPoint[0], shoppingCartPoint[1]);
+                goodsView.setCircleEndPoint(shoppingCartPoint[0]+mShoppingCartWidth/2, shoppingCartPoint[1]);
                 //添加View并执行动画
                 mViewGroup.addView(goodsView);
                 goodsView.startAnimation();
@@ -51,8 +68,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        bt_shoppingcart_goods = (Button) findViewById(R.id.bt_shoppingcart_goods);
-        bt_shoppingcart_cart = (Button) findViewById(R.id.bt_shoppingcart_cart);
+        iv_shop_add = (ImageView) findViewById(R.id.iv_shop_add);
+        iv_shop_reduce = (ImageView) findViewById(R.id.iv_shop_reduce);
+        iv_shop_cart = (ImageView) findViewById(R.id.iv_shop_cart);
         mViewGroup = (ViewGroup) getWindow().getDecorView();
 
     }

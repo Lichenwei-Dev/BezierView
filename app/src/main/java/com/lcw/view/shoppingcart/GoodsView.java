@@ -1,5 +1,7 @@
 package com.lcw.view.shoppingcart;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -7,9 +9,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
 /**
@@ -28,95 +33,110 @@ public class GoodsView extends View {
     GoodsViewPoint mCircleEndPoint = new GoodsViewPoint();
     //小红点控制点坐标
     GoodsViewPoint mCircleConPoint = new GoodsViewPoint();
-    Path path = new Path();
+    //小红点的移动坐标
+    GoodsViewPoint mCircleMovePoint = new GoodsViewPoint();
     //小红点半径
-    private int mRadius = 30;
+    private int mRadius=20;
     //小红点画笔
     private Paint mCirclePaint;
 
-    private Paint mLinePaint;
-
-
     public GoodsView(Context context) {
         super(context);
-        init();
+        init(context);
     }
 
 
     public GoodsView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context);
     }
 
     public GoodsView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(context);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawCircle(canvas);
-
     }
 
-    private void init() {
+    /**
+     * 进行一些初始化操作
+     */
+    private void init(Context context) {
         mCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mCirclePaint.setStyle(Paint.Style.FILL);
         mCirclePaint.setColor(Color.RED);
 
-
-        mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mLinePaint.setStyle(Paint.Style.STROKE);
-        mLinePaint.setStrokeWidth(10);
-        mLinePaint.setColor(Color.RED);
     }
 
     /**
-     * 商品飞入购物车的小红点
+     * 商品加入购物车的小红点
      */
     private void drawCircle(Canvas canvas) {
-//        path.moveTo(mCircleStartPoint.getX(), mCircleStartPoint.getY());
-//        path.quadTo(mCircleConPoint.getX(), mCircleConPoint.getY(), mCircleEndPoint.getX(), mCircleEndPoint.getY());
-//        canvas.drawPath(path, mLinePaint);
-        canvas.drawCircle(mCircleStartPoint.getX(), mCircleStartPoint.getY(), mRadius, mCirclePaint);
-
+        canvas.drawCircle(mCircleMovePoint.getX(), mCircleMovePoint.getY(), mRadius, mCirclePaint);
     }
 
-
+    /**
+     * 设置开始点和开始移动点
+     * @param x
+     * @param y
+     */
     public void setCircleStartPoint(int x, int y) {
-        Log.i("Rabbit", x + "-" + y);
         this.mCircleStartPoint.setX(x);
         this.mCircleStartPoint.setY(y);
+        this.mCircleMovePoint.setX(x);
+        this.mCircleMovePoint.setY(y);
     }
 
+    /**
+     * 设置结束点
+     * @param x
+     * @param y
+     */
     public void setCircleEndPoint(int x, int y) {
-        Log.i("Rabbit", x + "--" + y);
         this.mCircleEndPoint.setX(x);
         this.mCircleEndPoint.setY(y);
     }
 
 
+    /**
+     * 开始动画
+     */
     public void startAnimation() {
         if (mCircleStartPoint == null || mCircleEndPoint == null) {
             return;
         }
-        mCircleConPoint.setX((mCircleStartPoint.getX() + mCircleEndPoint.getX()) / 2);
-        mCircleConPoint.setY(mCircleStartPoint.getY() - 50);
 
+        //设置控制点
+        mCircleConPoint.setX((mCircleStartPoint.getX() + mCircleEndPoint.getX()) / 2);
+        mCircleConPoint.setY(mCircleConPoint.getY() + 20);
+
+        //设置值动画
         ValueAnimator valueAnimator = ValueAnimator.ofObject(new CirclePointEvaluator(), mCircleStartPoint, mCircleEndPoint);
-        valueAnimator.setDuration(1200);
+        valueAnimator.setDuration(600);
         valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 GoodsViewPoint goodsViewPoint = (GoodsViewPoint) animation.getAnimatedValue();
-                setX(goodsViewPoint.getX());
-                setY(goodsViewPoint.getY());
+                mCircleMovePoint.setX(goodsViewPoint.getX());
+                mCircleMovePoint.setY(goodsViewPoint.getY());
                 invalidate();
             }
         });
+        valueAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                ViewGroup viewGroup= (ViewGroup) getParent();
+                viewGroup.removeView(GoodsView.this);
+                super.onAnimationEnd(animation);
+            }
+        });
         valueAnimator.start();
+
     }
 
 
@@ -137,15 +157,20 @@ public class GoodsView extends View {
             GoodsViewPoint startPoint = (GoodsViewPoint) startValue;
             GoodsViewPoint endPoint = (GoodsViewPoint) endValue;
 
-            int x = (int) (((1 - fraction) * (1 - fraction)) * startPoint.getX() + 2 * fraction * (1 - fraction) * mCircleConPoint.getX() + fraction * fraction * endPoint.getX());
-            int y = (int) (((1 - fraction) * (1 - fraction)) * startPoint.getY() + 2 * fraction * (1 - fraction) * mCircleConPoint.getY() + fraction * fraction * endPoint.getY());
+            float temp = 1 - fraction;
 
-            Log.i("Rabbit", x + "--" + y);
+            int x = (int) (temp * temp * startPoint.getX() + 2 * fraction * temp * mCircleConPoint.getX() + fraction * fraction
+                    * endPoint.getX());
+            int y = (int) (temp * temp * startPoint.getY() + 2 * fraction * temp * mCircleConPoint.getY() + fraction * fraction
+                    * endPoint.getY());
+
 
             GoodsViewPoint goodsViewPoint = new GoodsViewPoint();
             goodsViewPoint.setX(x);
             goodsViewPoint.setY(y);
             return goodsViewPoint;
         }
+
     }
+
 }

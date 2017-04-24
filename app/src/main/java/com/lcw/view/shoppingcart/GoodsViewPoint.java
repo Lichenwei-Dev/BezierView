@@ -13,6 +13,14 @@ public class GoodsViewPoint {
     private int x;
     private int y;
 
+    public GoodsViewPoint() {
+    }
+
+    public GoodsViewPoint(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public int getX() {
         return x;
     }
@@ -27,5 +35,13 @@ public class GoodsViewPoint {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "GoodsViewPoint{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
     }
 }

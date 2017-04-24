@@ -78,7 +78,7 @@ public class BezierWaveView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         mPath.reset();
-        //赛贝尔曲线
+        //贝塞尔曲线
         mPath.moveTo(-mScreenWidth + mOffset, mScreenHeight / 2);
 
 //        mPath.quadTo(-mScreenWidth * 3 / 4 + mOffset, mScreenHeight / 2 - 100, -mScreenWidth / 2 + mOffset, mScreenHeight / 2);
