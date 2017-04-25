@@ -14,18 +14,18 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnimationSet;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.lcw.view.R;
+
+import java.util.Random;
 
 /**
  * 自定义ViewGroup（内含自定义View-星星）
@@ -34,7 +34,7 @@ import com.lcw.view.R;
  * time: 15:41
  * Email: lichenwei.me@foxmail.com
  */
-public class StarView extends RelativeLayout implements View.OnClickListener{
+public class StarViewGroup extends RelativeLayout implements View.OnClickListener {
 
     private Bitmap mBitmap;
 
@@ -47,23 +47,26 @@ public class StarView extends RelativeLayout implements View.OnClickListener{
     private int mScreenHeight;
 
     //记录数据点，控制点(由于是三阶贝塞尔曲线，所以有2个控制点)
-    private Point mStartPoint;
-    private Point mEndPoint;
-    private Point mConOnePoint;
-    private Point mConTwoPoint;
+    protected Point mStartPoint;
+    protected Point mEndPoint;
+    protected Point mConOnePoint;
+    protected Point mConTwoPoint;
+
+    protected Random mRandom;
+    protected int[] mColors = {Color.BLUE, Color.CYAN, Color.GREEN, Color.RED, Color.MAGENTA, Color.DKGRAY};
 
 
-    public StarView(Context context) {
+    public StarViewGroup(Context context) {
         super(context);
         initView();
     }
 
-    public StarView(Context context, AttributeSet attrs) {
+    public StarViewGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView();
     }
 
-    public StarView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public StarViewGroup(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView();
     }
@@ -78,6 +81,7 @@ public class StarView extends RelativeLayout implements View.OnClickListener{
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setColor(Color.BLACK);
         mPath = new Path();
+        mRandom = new Random();
         //获取资源图片转化Bitmap（不可修改）
         mBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.icon_star);
 
@@ -102,17 +106,23 @@ public class StarView extends RelativeLayout implements View.OnClickListener{
     }
 
     protected void addStar() {
-        Bitmap starBitmap = drawStar(Color.BLUE);
+        Bitmap starBitmap = drawStar(mColors[mRandom.nextInt(mColors.length)]);
         final ImageView imageView = new ImageView(getContext());
-        RelativeLayout.LayoutParams layoutParams=new LayoutParams(80, 80);
+        RelativeLayout.LayoutParams layoutParams = new LayoutParams(120, 100);
         layoutParams.addRule(CENTER_HORIZONTAL);
         layoutParams.addRule(ALIGN_PARENT_BOTTOM);
         imageView.setImageBitmap(starBitmap);
-        addView(imageView,layoutParams);
+        addView(imageView, layoutParams);
 
-        ValueAnimator valueAnimator = ValueAnimator.ofObject(new StarTypeEvaluator(), mStartPoint, mEndPoint);
-        valueAnimator.setDuration(800);
-        valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        Point pointFFirst = this.mConOnePoint;
+        Point pointFSecond = this.mConTwoPoint;
+        Point pointFStart = this.mStartPoint;
+        Point pointFEnd = this.mEndPoint;
+
+
+        //值动画
+        ValueAnimator valueAnimator = ValueAnimator.ofObject(new StarTypeEvaluator(pointFFirst,pointFSecond), pointFStart, pointFEnd);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -121,21 +131,22 @@ public class StarView extends RelativeLayout implements View.OnClickListener{
                 imageView.setY(point.y);
             }
         });
+
         valueAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                StarView.this.removeView(imageView);
+                StarViewGroup.this.removeView(imageView);
             }
         });
 
 
-        ObjectAnimator objectAnimator=ObjectAnimator.ofFloat(imageView,"alpha",1.0f,0.2f);
-        objectAnimator.setDuration(800);
-        objectAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        //透明度动画
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(imageView, "alpha", 1.0f, 0f);
 
-        AnimatorSet animatorSet=new AnimatorSet();
-        animatorSet.setDuration(1300);
+        //组合动画
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.setDuration(3500);
         animatorSet.play(valueAnimator).with(objectAnimator);
         animatorSet.start();
 
@@ -168,21 +179,29 @@ public class StarView extends RelativeLayout implements View.OnClickListener{
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mPath.moveTo(mStartPoint.x,mStartPoint.y);
-        mPath.cubicTo(mConOnePoint.x,mConOnePoint.y,mConTwoPoint.x,mConTwoPoint.y,mEndPoint.x,mEndPoint.y);
-        canvas.drawPath(mPath,mPaint);
+//        mPath.moveTo(mStartPoint.x, mStartPoint.y);
+//        mPath.cubicTo(mConOnePoint.x, mConOnePoint.y, mConTwoPoint.x, mConTwoPoint.y, mEndPoint.x, mEndPoint.y);
+//        canvas.drawPath(mPath, mPaint);
     }
 
 
     class StarTypeEvaluator implements TypeEvaluator<Point> {
 
+        private Point pointFFirst, pointFSecond;
+
+        public StarTypeEvaluator(Point pointFFirst, Point pointFSecond) {
+            this.pointFFirst = pointFFirst;
+            this.pointFSecond = pointFSecond;
+        }
+
         @Override
         public Point evaluate(float fraction, Point startValue, Point endValue) {
+            //利用三阶贝塞尔曲线公式算出中间点坐标
             float temp = 1 - fraction;
-            int x = (int) (temp * temp * temp * startValue.x + 3 * temp * temp * fraction * mConOnePoint.x + 3 * temp*
-                    fraction * fraction * mConTwoPoint.x + fraction * fraction * fraction * mEndPoint.x);
-            int y = (int) (temp * temp * temp * startValue.y + 3 * temp * temp * fraction * mConOnePoint.y + 3 * temp *
-                    fraction * fraction * mConTwoPoint.y + fraction * fraction * fraction * mEndPoint.y);
+            int x = (int) (temp * temp * temp * startValue.x + 3 * temp * temp * fraction * pointFFirst.x + 3 * temp *
+                    fraction * fraction * pointFSecond.x + fraction * fraction * fraction * endValue.x);
+            int y = (int) (temp * temp * temp * startValue.y + 3 * temp * temp * fraction * pointFFirst.y + 3 * temp *
+                    fraction * fraction * pointFSecond.y + fraction * fraction * fraction * endValue.y);
             return new Point(x, y);
         }
     }
@@ -192,5 +211,14 @@ public class StarView extends RelativeLayout implements View.OnClickListener{
         addStar();
     }
 
-
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+////        mStartPoint = new Point(mScreenWidth / 2, mScreenHeight);
+////        mEndPoint = new Point((int) (mScreenWidth * mRandom.nextFloat() / 2), 0);
+////        mConOnePoint = new Point((int) (mScreenWidth * mRandom.nextFloat()), (int) (mScreenHeight * 3 * mRandom.nextFloat() / 4));
+////        mConTwoPoint = new Point(0, (int) (mScreenHeight * mRandom.nextFloat() / 4));
+////
+////        addStar();
+//        return true;
+//    }
 }

@@ -5,7 +5,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <com.lcw.view.starview.StarView
+    <com.lcw.view.starview.StarViewGroup
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
