@@ -6,6 +6,12 @@
               android:orientation="vertical">
 
     <Button
+        android:id="@+id/bt_main_wave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="波浪"/>
+
+    <Button
         android:id="@+id/bt_main_shop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

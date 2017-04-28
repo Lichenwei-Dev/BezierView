@@ -5,15 +5,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <Button
-        android:id="@+id/bt_main_shop"
+    <com.lcw.view.BezierWaveView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="购物车"/>
-
-    <Button
-        android:id="@+id/bt_main_test"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="飘星"/>
+        android:layout_height="match_parent"/>
 </LinearLayout>

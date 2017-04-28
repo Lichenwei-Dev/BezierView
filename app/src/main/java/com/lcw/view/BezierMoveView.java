@@ -9,13 +9,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
-
-import com.lcw.view.shoppingcart.GoodsViewPoint;
 
 /**
  * 自定义View(二阶贝塞尔曲线滑动动画)

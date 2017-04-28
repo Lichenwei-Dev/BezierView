@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 /**
+ * 自定义ViewGroup（添加爱心）
  * Create by: chenwei.li
  * Date: 2017/4/25
  * time: 11:10

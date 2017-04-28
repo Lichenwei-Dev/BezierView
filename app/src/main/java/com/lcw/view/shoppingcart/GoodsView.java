@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -28,15 +27,15 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 public class GoodsView extends View {
 
     //小红点开始坐标
-    GoodsViewPoint mCircleStartPoint = new GoodsViewPoint();
+    Point mCircleStartPoint = new Point();
     //小红点结束坐标
-    GoodsViewPoint mCircleEndPoint = new GoodsViewPoint();
+    Point mCircleEndPoint = new Point();
     //小红点控制点坐标
-    GoodsViewPoint mCircleConPoint = new GoodsViewPoint();
+    Point mCircleConPoint = new Point();
     //小红点的移动坐标
-    GoodsViewPoint mCircleMovePoint = new GoodsViewPoint();
+    Point mCircleMovePoint = new Point();
     //小红点半径
-    private int mRadius=20;
+    private int mRadius = 20;
     //小红点画笔
     private Paint mCirclePaint;
 
@@ -70,35 +69,38 @@ public class GoodsView extends View {
         mCirclePaint.setStyle(Paint.Style.FILL);
         mCirclePaint.setColor(Color.RED);
 
+
     }
 
     /**
      * 商品加入购物车的小红点
      */
     private void drawCircle(Canvas canvas) {
-        canvas.drawCircle(mCircleMovePoint.getX(), mCircleMovePoint.getY(), mRadius, mCirclePaint);
+        canvas.drawCircle(mCircleMovePoint.x, mCircleMovePoint.y, mRadius, mCirclePaint);
     }
 
     /**
-     * 设置开始点和开始移动点
+     * 设置开始点和移动点
+     *
      * @param x
      * @param y
      */
     public void setCircleStartPoint(int x, int y) {
-        this.mCircleStartPoint.setX(x);
-        this.mCircleStartPoint.setY(y);
-        this.mCircleMovePoint.setX(x);
-        this.mCircleMovePoint.setY(y);
+        this.mCircleStartPoint.x = x;
+        this.mCircleStartPoint.y = y;
+        this.mCircleMovePoint.x = x;
+        this.mCircleMovePoint.y = y;
     }
 
     /**
      * 设置结束点
+     *
      * @param x
      * @param y
      */
     public void setCircleEndPoint(int x, int y) {
-        this.mCircleEndPoint.setX(x);
-        this.mCircleEndPoint.setY(y);
+        this.mCircleEndPoint.x = x;
+        this.mCircleEndPoint.y = y;
     }
 
 
@@ -110,9 +112,10 @@ public class GoodsView extends View {
             return;
         }
 
+
         //设置控制点
-        mCircleConPoint.setX((mCircleStartPoint.getX() + mCircleEndPoint.getX()) / 2);
-        mCircleConPoint.setY(mCircleConPoint.getY() + 20);
+        mCircleConPoint.x = ((mCircleStartPoint.x + mCircleEndPoint.x) / 2);
+        mCircleConPoint.y = (20);
 
         //设置值动画
         ValueAnimator valueAnimator = ValueAnimator.ofObject(new CirclePointEvaluator(), mCircleStartPoint, mCircleEndPoint);
@@ -121,18 +124,18 @@ public class GoodsView extends View {
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                GoodsViewPoint goodsViewPoint = (GoodsViewPoint) animation.getAnimatedValue();
-                mCircleMovePoint.setX(goodsViewPoint.getX());
-                mCircleMovePoint.setY(goodsViewPoint.getY());
+                Point goodsViewPoint = (Point) animation.getAnimatedValue();
+                mCircleMovePoint.x = goodsViewPoint.x;
+                mCircleMovePoint.y = goodsViewPoint.y;
                 invalidate();
             }
         });
         valueAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                ViewGroup viewGroup= (ViewGroup) getParent();
-                viewGroup.removeView(GoodsView.this);
                 super.onAnimationEnd(animation);
+                ViewGroup viewGroup = (ViewGroup) getParent();
+                viewGroup.removeView(GoodsView.this);
             }
         });
         valueAnimator.start();
@@ -146,29 +149,21 @@ public class GoodsView extends View {
     public class CirclePointEvaluator implements TypeEvaluator {
 
         /**
-         * @param fraction   当前动画进度
+         * @param t   当前动画进度
          * @param startValue 开始值
          * @param endValue   结束值
          * @return
          */
         @Override
-        public Object evaluate(float fraction, Object startValue, Object endValue) {
+        public Object evaluate(float t, Object startValue, Object endValue) {
 
-            GoodsViewPoint startPoint = (GoodsViewPoint) startValue;
-            GoodsViewPoint endPoint = (GoodsViewPoint) endValue;
+            Point startPoint = (Point) startValue;
+            Point endPoint = (Point) endValue;
 
-            float temp = 1 - fraction;
+            int x = (int) (Math.pow((1-t),2)*startPoint.x+2*(1-t)*t*mCircleConPoint.x+Math.pow(t,2)*endPoint.x);
+            int y = (int) (Math.pow((1-t),2)*startPoint.y+2*(1-t)*t*mCircleConPoint.y+Math.pow(t,2)*endPoint.y);
 
-            int x = (int) (temp * temp * startPoint.getX() + 2 * fraction * temp * mCircleConPoint.getX() + fraction * fraction
-                    * endPoint.getX());
-            int y = (int) (temp * temp * startPoint.getY() + 2 * fraction * temp * mCircleConPoint.getY() + fraction * fraction
-                    * endPoint.getY());
-
-
-            GoodsViewPoint goodsViewPoint = new GoodsViewPoint();
-            goodsViewPoint.setX(x);
-            goodsViewPoint.setY(y);
-            return goodsViewPoint;
+            return new Point(x,y);
         }
 
     }

@@ -53,7 +53,7 @@ public class StarViewGroup extends RelativeLayout implements View.OnClickListene
     protected Point mConTwoPoint;
 
     protected Random mRandom;
-    protected int[] mColors = {Color.BLUE, Color.CYAN, Color.GREEN, Color.RED, Color.MAGENTA, Color.DKGRAY};
+    protected int[] mColors = {Color.BLUE, Color.CYAN, Color.GREEN, Color.RED, Color.MAGENTA, Color.YELLOW};
 
 
     public StarViewGroup(Context context) {
@@ -115,14 +115,15 @@ public class StarViewGroup extends RelativeLayout implements View.OnClickListene
         addView(imageView, layoutParams);
 
 
-        Point pointFFirst = this.mConOnePoint;
-        Point pointFSecond = this.mConTwoPoint;
-        Point pointFStart = this.mStartPoint;
-        Point pointFEnd = this.mEndPoint;
+        Point conOnePoint = this.mConOnePoint;
+        Point conTwoPoint = this.mConTwoPoint;
+        Point startPoint = this.mStartPoint;
+        Point endPoint = this.mEndPoint;
 
 
-        //值动画
-        ValueAnimator valueAnimator = ValueAnimator.ofObject(new StarTypeEvaluator(pointFFirst,pointFSecond), pointFStart, pointFEnd);
+        //设置属性动画
+        ValueAnimator valueAnimator = ValueAnimator.ofObject(new StarTypeEvaluator(conOnePoint, conTwoPoint), startPoint,
+                endPoint);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -146,7 +147,7 @@ public class StarViewGroup extends RelativeLayout implements View.OnClickListene
 
         //组合动画
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.setDuration(3500);
+        animatorSet.setDuration(4000);
         animatorSet.play(valueAnimator).with(objectAnimator);
         animatorSet.start();
 
@@ -187,38 +188,50 @@ public class StarViewGroup extends RelativeLayout implements View.OnClickListene
 
     class StarTypeEvaluator implements TypeEvaluator<Point> {
 
-        private Point pointFFirst, pointFSecond;
+        //记录控制点
+        private Point conOnePoint, conSecondPoint;
 
-        public StarTypeEvaluator(Point pointFFirst, Point pointFSecond) {
-            this.pointFFirst = pointFFirst;
-            this.pointFSecond = pointFSecond;
+        public StarTypeEvaluator(Point conOnePoint, Point conSecondPoint) {
+            this.conOnePoint = conOnePoint;
+            this.conSecondPoint = conSecondPoint;
         }
 
         @Override
-        public Point evaluate(float fraction, Point startValue, Point endValue) {
+        public Point evaluate(float t, Point startValue, Point endValue) {
+
             //利用三阶贝塞尔曲线公式算出中间点坐标
-            float temp = 1 - fraction;
-            int x = (int) (temp * temp * temp * startValue.x + 3 * temp * temp * fraction * pointFFirst.x + 3 * temp *
-                    fraction * fraction * pointFSecond.x + fraction * fraction * fraction * endValue.x);
-            int y = (int) (temp * temp * temp * startValue.y + 3 * temp * temp * fraction * pointFFirst.y + 3 * temp *
-                    fraction * fraction * pointFSecond.y + fraction * fraction * fraction * endValue.y);
+            int x = (int) (startValue.x * Math.pow((1 - t), 3) + 3 * conOnePoint.x * t * Math.pow((1 - t), 2) + 3 *
+                    conSecondPoint.x * Math.pow(t, 2) * (1 - t) + endValue.x * Math.pow(t, 3));
+            int y = (int) (startValue.y * Math.pow((1 - t), 3) + 3 * conOnePoint.y * t * Math.pow((1 - t), 2) + 3 *
+                    conSecondPoint.y * Math.pow(t, 2) * (1 - t) + endValue.y * Math.pow(t, 3));
             return new Point(x, y);
         }
     }
 
     @Override
     public void onClick(View v) {
-        addStar();
+
+//        mStartPoint = new Point(mScreenWidth / 2, mScreenHeight);
+//        mEndPoint = new Point((int) (mScreenWidth / 2 + 150 * mRandom.nextFloat()), 0);
+//        mConOnePoint = new Point((int) (mScreenWidth * mRandom.nextFloat()), (int) (mScreenHeight * 3 * mRandom.nextFloat() / 4));
+//        mConTwoPoint = new Point(0, (int) (mScreenHeight * mRandom.nextFloat() / 4));
+//
+//        addStar();
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-////        mStartPoint = new Point(mScreenWidth / 2, mScreenHeight);
-////        mEndPoint = new Point((int) (mScreenWidth * mRandom.nextFloat() / 2), 0);
-////        mConOnePoint = new Point((int) (mScreenWidth * mRandom.nextFloat()), (int) (mScreenHeight * 3 * mRandom.nextFloat() / 4));
-////        mConTwoPoint = new Point(0, (int) (mScreenHeight * mRandom.nextFloat() / 4));
-////
-////        addStar();
-//        return true;
-//    }
+    /**
+     * 监听onTouch事件，动态生成对应坐标
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mStartPoint = new Point(mScreenWidth / 2, mScreenHeight);
+        mEndPoint = new Point((int) (mScreenWidth / 2 + 150 * mRandom.nextFloat()), 0);
+        mConOnePoint = new Point((int) (mScreenWidth * mRandom.nextFloat()), (int) (mScreenHeight * 3 * mRandom.nextFloat() / 4));
+        mConTwoPoint = new Point(0, (int) (mScreenHeight * mRandom.nextFloat() / 4));
+
+        addStar();
+        return true;
+    }
 }

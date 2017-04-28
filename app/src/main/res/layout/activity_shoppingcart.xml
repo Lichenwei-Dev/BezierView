@@ -2,52 +2,54 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#ffffff"
                 android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:src="@mipmap/ic_launcher"/>
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/iv_shop_reduce"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@mipmap/icon_shop_reduce"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:src="@mipmap/icon_shop_goods"/>
 
-            <TextView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginLeft="6dp"
-                android:layout_marginRight="6dp"
-                android:textSize="16sp"
-                android:text="99"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
 
-            <ImageView
-                android:id="@+id/iv_shop_add"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@mipmap/icon_shop_add"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@mipmap/icon_shop_reduce"/>
+
+                <TextView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginRight="6dp"
+                    android:text="99"
+                    android:textSize="16sp"/>
+
+                <ImageView
+                    android:id="@+id/iv_shop_add"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@mipmap/icon_shop_add"/>
+            </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -60,8 +62,8 @@
 
         <ImageView
             android:id="@+id/iv_shop_cart"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:padding="2dp"
             android:src="@mipmap/icon_shop_shopcart"/>
 
@@ -71,7 +73,7 @@
             android:layout_weight="1"/>
 
         <TextView
-            android:layout_width="60dp"
+            android:layout_width="80dp"
             android:layout_height="30dp"
             android:layout_marginRight="6dp"
             android:background="#f17334"
@@ -80,5 +82,6 @@
             android:textColor="#ffffff"/>
 
     </LinearLayout>
+
 
 </RelativeLayout>
